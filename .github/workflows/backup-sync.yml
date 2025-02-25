@@ -1,0 +1,67 @@
+name: Backup Sync
+on:
+  workflow_dispatch:
+    inputs:
+      source_env:
+        description: 'Source environment'
+        required: true
+        type: choice
+        options:
+          - release
+          - staging
+      target_env:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      migrate_users:
+        description: 'Users will be migrated from source to target environment'
+        required: false
+        type: boolean
+        default: false
+      additional_skip_tables:
+        description: 'Additional tables to skip (comma-separated)'
+        required: false
+        type: string
+      additional_sync_dirs:
+        description: 'Additional directories to sync (comma-separated)'
+        required: false
+        type: string
+
+jobs:
+  backup-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Backup Sync
+        uses: spope851/wp-env-backup-sync@v1
+        with:
+          source_env: ${{ github.event.inputs.source_env }}
+          target_env: ${{ github.event.inputs.target_env }}
+          base_path: ${{ secrets.PROJECT_PATH }}
+          domain: ${{ secrets.PROJECT_DOMAIN }}
+          ssh_host: ${{ secrets.HOSTINGER_HOST }}
+          ssh_username: ${{ secrets.HOSTINGER_USERNAME }}
+          ssh_private_key: ${{ secrets.HOSTINGER_PRIVATE_KEY }}
+          ssh_known_hosts: ${{ secrets.HOSTINGER_KNOWN_HOSTS }}
+          ssh_key_type: ${{ secrets.HOSTINGER_KEY_TYPE }}
+          ssh_port: ${{ secrets.HOSTINGER_PORT }}
+          encryption_password: ${{ secrets.PROJECT_ENCRYPTION_PASSWORD }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_tables: ${{ 
+              format('{0}{1}{2}',
+                'wp_comments,wp_commentmeta,wp_lightspeed_url,wp_lightspeed_url_file',
+                github.event.inputs.additional_skip_tables != '' && format(',{0}', github.event.inputs.additional_skip_tables) || '',
+                github.event.inputs.migrate_users && '' || ',wp_users,wp_usermeta'
+              )
+            }}
+          sync_content_dirs: ${{
+              format('{0}{1}',
+                'themes,plugins,uploads',
+                github.event.inputs.additional_sync_dirs != '' && format(',{0}', github.event.inputs.additional_sync_dirs) || ''
+              )
+            }}
