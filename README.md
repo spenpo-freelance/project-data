@@ -10,7 +10,7 @@ See [workflow documentation](https://github.com/spope851/wp-env-backup-sync) for
 1. Create a new repository from this template
 2. Add all required secrets from the documentation to your repository or organization
 3. Update the `PROJECT_PATH`, `PROJECT_DOMAIN`, and `PROJECT_ENCRYPTION_PASSWORD` secrets in the new repository
-4. Delete this readme and add your own explaining the project you're using backup-sync for and how backup-sync is used to support the project
+4. Delete this readme, the changie files (.changie.yaml, .changes/, CHANGELOG.md), and add your own readme explaining the project you're using backup-sync for and how backup-sync is used to support the project
 
 ## Usage
 
